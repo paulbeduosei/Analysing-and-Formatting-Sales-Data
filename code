@@ -1,3 +1,26 @@
+-- top_five_products_each_category
+WITH ranks AS (
+SELECT 
+	p.category AS category,
+	p.product_name AS product_name,
+	ROUND(SUM(o.sales)::numeric,2) AS product_total_sales,
+	ROUND(SUM(o.profit):: numeric,2) AS product_total_profit,
+	RANK() OVER (PARTITION BY p.category ORDER BY ROUND(SUM(o.sales)::numeric,2) DESC) AS product_rank
+FROM orders AS o
+JOIN products AS p
+ON o.product_id = p.product_id
+GROUP BY p.category, p.product_name
+)
+SELECT 
+category,
+product_name,
+product_total_sales, 
+product_total_profit,
+product_rank
+FROM ranks
+WHERE product_rank <=5
+ORDER BY category ASC;
+
 -- impute_missing_values
 WITH missing AS (
     SELECT 
